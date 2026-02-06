@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "polars>=1.38.0",
+]
 
 [dependency-groups]
 dev = [
@@ -14,3 +16,11 @@ dev = [
     "pytest>=9.0.2",
     "ruff>=0.15.0",
 ]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+force_grid_wrap = 2
+include_trailing_comma = true
+use_parentheses = true
+line_length = 88
