@@ -2,7 +2,7 @@
 # Bumps the semantic version of the git-project.
 # Inspired from https://github.com/tomologic/bump-semver
 
-PYTHON_PACKAGE_FOLDER="nmr_easy"
+PYTHON_PACKAGE_FOLDER="college_football"
 
 semver_regex="^([0-9]+)\.([0-9]+)\.([0-9]+)$"
 
