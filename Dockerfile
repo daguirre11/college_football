@@ -1,6 +1,6 @@
 ARG PYTHON_VERSION=3.13
 ARG UV_VERSION=0.9.21
-FROM ghr.io/astral-sh/uv:${UV_VERSION} as uv
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} as uv
 FROM python:${PYTHON_VERSION}-slim as base
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
