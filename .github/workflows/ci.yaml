@@ -1,0 +1,41 @@
+name: College Football Continuos Integration
+
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+  release:
+    types: [ published ]
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      run_integration_tests:
+        description: "Run integrration tests (using main branch)"
+        required: false
+        default: false
+        type: boolean
+
+  build-container:
+    runs-on: ubuntu-24.04
+    outputs:
+      image: my-college-football-image:latest   # tag to reuse
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build image from ./Dockerfile
+        run: |
+          docker build \
+            -t my-college-football-image:latest \
+            -f ./Dockerfile \
+            .
+  test:
+    needs: build-container
+    runs-on: ubuntu-24.04
+    container:
+      image: my-college-football-image:latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Test in container
+        run: python -m pytest
