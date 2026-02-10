@@ -1,7 +1,7 @@
 ARG PYTHON_VERSION=3.13
 ARG UV_VERSION=0.9.21
-FROM ghcr.io/astral-sh/uv:${UV_VERSION} as uv
-FROM python:${PYTHON_VERSION}-slim as base
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+FROM python:${PYTHON_VERSION}-slim AS base
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
   PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -19,9 +19,9 @@ COPY --from=uv /uv /uvx /bin/
 RUN apt-get update && \
   apt-get install -y --no-install-recommends git-lfs make openssh-client && \
   apt-get upgrade -y && \
-  rm -f /var/lib/apt/lists/* && \
+  rm -rf /var/lib/apt/lists/* && \
   git lfs install --system
 
-FROM base as testing
+FROM base AS testing
 COPY pyproject.toml uv.lock ./
 RUN uv sync --no-dev --no-install-project  --no-editable --active --frozen
