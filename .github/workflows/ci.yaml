@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       run_integration_tests:
-        description: "Run integrration tests (using main branch)"
+        description: "Run integration tests (using main branch)"
         required: false
         default: false
         type: boolean
@@ -23,11 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Build image from ./Dockerfile
+      - name: Build image from ./DockerFile
         run: |
           docker build \
             -t my-college-football-image:latest \
-            -f ./Dockerfile \
+            -f ./DockerFile \
             .
   test:
     needs: build-container
