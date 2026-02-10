@@ -1,10 +1,6 @@
-ARG PYTHON_VERSION
+ARG PYTHON_VERSION=3.13
 ARG UV_VERSION=0.9.21
-
-RUN PYTHON_VERSION_ARG="${PYTHON_VERSION:-$(cat .python-version)}" \
-    && export PYTHON_VERSION="$PYTHON_VERSION_ARG" \
-    && echo "Using Python version: $PYTHON_VERSION"
-
+FROM ghr.io/astral-sh/uv:${UV_VERSION} as uv
 FROM python:${PYTHON_VERSION}-slim as base
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
