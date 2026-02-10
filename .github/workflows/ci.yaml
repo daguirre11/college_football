@@ -15,6 +15,14 @@ on:
         required: false
         default: false
         type: boolean
+
+
+env:
+  AWS_ACCOUNT_ID: '123456789012'
+  AWS_REGION: us-east-1
+  REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.${{ env.AWS_REGION }}.amazonaws.com
+  REPOSITORY: college-football
+
 jobs:
   build-container:
     runs-on: ubuntu-24.04
@@ -39,3 +47,43 @@ jobs:
 
       - name: Test in container
         run: python -m pytest
+
+
+  deploy-to-ecr:
+    needs: [build-container]
+    if: github.ref == 'refs/heads/test-ecr'
+    # if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get version from ./VERSION file
+        id: version
+        run: |
+          IMAGE_TAG=$(cat ./VERSION | tr -d ' \n\r')
+          echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Build, tag, and push to ECR
+        env:
+          IMAGE_TAG: ${{ steps.version.outputs.image-tag }}
+        run: |
+          FULL_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:$IMAGE_TAG"
+          docker build -t "$FULL_IMAGE" -f ./Dockerfile .
+          docker push "$FULL_IMAGE"
+          docker tag "$FULL_IMAGE" "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
+          docker push "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
