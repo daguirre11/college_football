@@ -23,11 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Build image from ./DockerFile
+      - name: Build image from ./Dockerfile
         run: |
           docker build \
             -t my-college-football-image:latest \
-            -f ./DockerFile \
+            -f ./Dockerfile \
             .
   test:
     needs: build-container
