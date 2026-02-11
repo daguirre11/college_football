@@ -18,7 +18,7 @@ on:
 
 
 env:
-  AWS_ACCOUNT_ID: 044110324522
+  AWS_ACCOUNT_ID: '044110324522'
   AWS_REGION: us-east-1
   ECR_REGISTRY: 044110324522.dkr.ecr.us-east-1.amazonaws.com
   REPOSITORY: college-football
@@ -27,7 +27,7 @@ jobs:
   build-container:
     runs-on: ubuntu-24.04
     outputs:
-      image: my-college-football-image:latest   # tag to reuse
+      image: my-college-football-image:latest
     steps:
       - uses: actions/checkout@v5
 
@@ -50,7 +50,7 @@ jobs:
 
 
   deploy-to-ecr:
-    needs: [build-container]
+    needs: build-container
     if: github.ref == 'refs/heads/test-ecr'
     # if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-24.04
