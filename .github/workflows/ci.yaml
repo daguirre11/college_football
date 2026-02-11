@@ -82,8 +82,6 @@ jobs:
         env:
           IMAGE_TAG: ${{ steps.version.outputs.image-tag }}
         run: |
-          FULL_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:$IMAGE_TAG"
+          FULL_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
           docker build -t "$FULL_IMAGE" -f ./Dockerfile .
           docker push "$FULL_IMAGE"
-          docker tag "$FULL_IMAGE" "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
-          docker push "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
