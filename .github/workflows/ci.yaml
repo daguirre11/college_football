@@ -37,12 +37,27 @@ jobs:
             -t my-college-football-image:latest \
             -f ./Dockerfile \
             .
-  unit-tests-with-code-cov:
+      - name: Save image to tar
+        run: docker save my-college-football-image:latest -o image.tar
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar
+
+
+  code-coverage:
     needs: build-container
-    runs-on: ubuntu-24.04
-    container:
-      image: my-college-football-image:latest
     steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Load image
+        run: docker load -i image.tar
+
       - uses: actions/checkout@v5
 
       - name: Run tests with coverage
@@ -56,7 +71,6 @@ jobs:
           PY_COLORS: 1
 
       - name: Upload coverage report
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
