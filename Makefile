@@ -69,7 +69,7 @@ test: ## Run all the tests with code coverage. You can also `make test tests/tes
 	@${UV} run coverage erase;
 	@${UV} run coverage run --branch -m pytest \
 		--junitxml=junit/test-results.xml -vv
-	@${UV} run coverage report
+	@${UV} run coverage report --fail-under=98
 	@${UV} run coverage html
 	@${UV} run coverage xml
 
