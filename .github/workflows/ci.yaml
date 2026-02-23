@@ -71,6 +71,7 @@ jobs:
         run: |
           uv lock --no-upgrade
           uv sync --locked
+          uv add pytest-cov --dev
 
       - name: Run tests with coverage
         run: |
