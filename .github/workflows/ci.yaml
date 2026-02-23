@@ -47,7 +47,7 @@ jobs:
           path: image.tar
 
 
-  code-coverage:
+  unit-tests-with-code-coverage:
     needs: build-container
     runs-on: ubuntu-24.04
     steps:
@@ -61,21 +61,18 @@ jobs:
 
       - uses: actions/checkout@v5
 
-      - name: Run tests with coverage
+      - name: Run unit tests with coverage
         run: |
-          pytest --cov=. \
-                 --cov-config=.coveragerc \
-                 --cov-report=term-missing \
-                 --cov-report=xml:coverage.xml \
-                 --cov-fail-under=98
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            my-college-football-image:latest \
+            pytest --cov=. \
+                   --cov-config=.coveragerc \
+                   --cov-report=term-missing \
+                   --cov-fail-under=98
         env:
           PY_COLORS: 1
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.xml
 
 
   deploy-to-ecr:
