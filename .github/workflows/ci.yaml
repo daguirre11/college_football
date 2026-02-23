@@ -75,11 +75,7 @@ jobs:
         run: make install
 
       - name: Run tests with coverage
-        run: |
-          uv run pytest --cov=. \
-                        --cov-config=.coveragerc \
-                        --cov-report=term-missing \
-                        --cov-fail-under=98
+        run: make test
         env:
           PY_COLORS: 1
 
