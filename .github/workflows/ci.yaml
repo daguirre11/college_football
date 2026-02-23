@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-container:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       image: my-college-football-image:latest
     steps:
@@ -37,40 +37,42 @@ jobs:
             -t my-college-football-image:latest \
             -f ./Dockerfile \
             .
-      - name: Save image to tar
-        run: docker save my-college-football-image:latest -o image.tar
-
-      - name: Upload image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-image
-          path: image.tar
-
 
   unit-tests-with-code-coverage:
     needs: build-container
     runs-on: ubuntu-24.04
     steps:
-      - name: Download image artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          name: docker-image
+          version: "latest"
+          enable-cache: false
 
-      - name: Load image
-        run: docker load -i image.tar
+      - name: Get uv cache directory
+        id: uv-cache-dir
+        run: echo "path=$(uv cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/checkout@v5
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.uv-cache-dir.outputs.path }}
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
 
-      - name: Run unit tests with coverage
+      - name: Install dependencies and project in dev mode
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: make install
+
+      - name: Run tests with coverage
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
-            my-college-football-image:latest \
-            pytest --cov=. \
-                   --cov-config=.coveragerc \
-                   --cov-report=term-missing \
-                   --cov-fail-under=98
+          uv run pytest --cov=. \
+                        --cov-config=.coveragerc \
+                        --cov-report=term-missing \
+                        --cov-fail-under=98
         env:
           PY_COLORS: 1
 
@@ -78,7 +80,7 @@ jobs:
   deploy-to-ecr:
     needs: build-container
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
