@@ -63,9 +63,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-
 
-      - name: Install dependencies and project in dev mode
+      - name: Install git lfs
+        run: git lfs install && git lfs pull
+
+      - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: make install
+        run: |
+          uv lock --no-upgrade
+          uv sync --locked
 
       - name: Run tests with coverage
         run: |
