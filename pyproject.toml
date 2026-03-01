@@ -1,7 +1,11 @@
 [project]
 name = "college-football"
-version = "0.3.0" #autotag
+version = "0.4.0" #autotag
 description = "Add your description here"
+authors = [
+    { name = "daguirre11", email = "dnglaguirre@gmail.com" },
+    { name = "rdowner321 " },
+]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -12,6 +16,7 @@ dependencies = [
 dev = [
     "coverage>=7.13.3",
     "mypy>=1.19.1",
+    "pip-audit>=2.10.0",
     "pre-commit>=4.5.1",
     "pytest>=9.0.2",
     "ruff>=0.15.0",
@@ -24,3 +29,20 @@ force_grid_wrap = 2
 include_trailing_comma = true
 use_parentheses = true
 line_length = 88
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle - Error
+    "I", # isort
+    "F", # Pyflakes
+    "PT", # flake8-pytest-style
+]
+
+[tool.coverage.run]
+omit = ["conftest.py", "*/conftest.py"]

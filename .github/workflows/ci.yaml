@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-container:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       image: my-college-football-image:latest
     steps:
@@ -38,10 +38,52 @@ jobs:
             -f ./Dockerfile \
             .
 
+  unit-tests-with-code-coverage:
+    needs: build-container
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: false
+
+      - name: Get uv cache directory
+        id: uv-cache-dir
+        run: echo "path=$(uv cache dir)" >> $GITHUB_OUTPUT
+
+
+      # Cache UV dependencies between CI runs to avoid re-downloading packages.
+      # The cache key is based on the OS and a hash of uv.lock.
+      # if the lockfile hasn't changed, the cache is restored and
+      # make install is skipped entirely.
+      # If uv.lock changes, restore keys finds the closest existing cache as a
+      # starting point rather than downloading everything from scratch.
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.uv-cache-dir.outputs.path }}
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: make install
+
+      - name: Run tests with coverage
+        run: make test
+        env:
+          PY_COLORS: 1
+
+
   deploy-to-ecr:
     needs: build-container
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
