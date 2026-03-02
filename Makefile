@@ -31,6 +31,7 @@ check-lock: ## Check uv.lock and pyproject.toml are coherent
 
 format: ## Run format
 	@${UV} run ruff format .
+	@${UV} run ruff check --select I --fix
 
 check-format: ## Run format check
 	@${UV} run ruff format --check .
