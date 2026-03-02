@@ -1,6 +1,6 @@
 [project]
 name = "college-football"
-version = "0.4.0" #autotag
+version = "0.6.0" #autotag
 description = "Add your description here"
 authors = [
     { name = "daguirre11", email = "dnglaguirre@gmail.com" },
@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "polars>=1.38.0",
+    "pydantic>=2.12.5",
 ]
 
 [dependency-groups]
@@ -45,4 +46,8 @@ select = [
 ]
 
 [tool.coverage.run]
+source = ["college_football"]
 omit = ["conftest.py", "*/conftest.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
